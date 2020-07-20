@@ -1,0 +1,34 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1",
+	"FriendlyName": "OWB_VoxelPlugin",
+	"Description": "Voxel plugin for Open World Bakery",
+	"Category": "Terrain",
+	"CreatedBy": "Dmitry Gribov",
+	"CreatedByURL": "primitive.game",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": true,
+	"IsExperimentalVersion": false,
+	"Installed": true,
+	"Modules": [
+		{
+			"Name": "OWB_VoxelPlugin",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "OpenWorldBakery",
+			"Enabled": true
+		},
+		{
+			"Name": "Voxel",
+			"Enabled": true
+		}
+	]
+}
