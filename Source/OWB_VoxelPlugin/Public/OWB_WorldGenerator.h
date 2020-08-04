@@ -27,7 +27,7 @@
  class FOWB_VoxelWorldGeneratorInstance : public TVoxelWorldGeneratorInstanceHelper<FOWB_VoxelWorldGeneratorInstance, UOWB_WorldGenerator>
  {
  public:
-	 explicit FOWB_VoxelWorldGeneratorInstance(const UOWB_WorldGenerator& MyGenerator);
+	 explicit FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGenerator& MyGenerator);
 
 	 //~ Begin FVoxelWorldGeneratorInstance Interface
 	 virtual void Init(const FVoxelWorldGeneratorInit& InitStruct) override;

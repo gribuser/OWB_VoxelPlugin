@@ -1,6 +1,7 @@
 // Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
 
 #include "OWB_WorldGenerator.h"
+#include "VoxelMaterialBuilder.h"
 //#include "HeightMapTerrain.h"
 
 TVoxelSharedRef<FVoxelWorldGeneratorInstance> UOWB_WorldGenerator::GetInstance()
@@ -20,14 +21,14 @@ TVoxelSharedRef<FVoxelWorldGeneratorInstance> UOWB_WorldGenerator::GetInstance()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-FOWB_VoxelWorldGeneratorInstance::FOWB_VoxelWorldGeneratorInstance(const UOWB_WorldGenerator& MyGenerator)
-	:OpenWorldBakery(MyGenerator.OpenWorldBakery), Generator(MyGenerator)
+FOWB_VoxelWorldGeneratorInstance::FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGenerator& MyGenerator)
+	:TVoxelWorldGeneratorInstanceHelper(&MyGenerator),OpenWorldBakery(MyGenerator.OpenWorldBakery), Generator(MyGenerator)
 {
 }
 
 void FOWB_VoxelWorldGeneratorInstance::Init(const FVoxelWorldGeneratorInit& InitStruct)
 {
-	MaterialConfig = InitStruct.DebugMaterialConfig;
+//	MaterialConfig = InitStruct.DebugMaterialConfig;
 }
 
 int FOWB_VoxelWorldGeneratorInstance::VoxelXToOWBX(const v_flt X) const {
@@ -131,16 +132,25 @@ FVoxelMaterial FOWB_VoxelWorldGeneratorInstance::GetMaterialImpl(v_flt X, v_flt 
 //	const OpenWorldBakery::FSquareMeter& Ground = OpenWorldBakery->Ground(iX, iY);
 
 	// return FVoxelMaterial::CreateFromColor(FColor::Red);
+	FVoxelMaterialBuilder NewMaterial;
 	if (Generator.Layer == EOWBMeshBlockTypes::Ground) {
 		if (MaterialConfig == EVoxelMaterialConfig::RGB)
 			return FVoxelMaterial::CreateFromColor(OpenWorldBakery->TerrainVoxelColor(CookedGround));
-		else if (MaterialConfig == EVoxelMaterialConfig::SingleIndex)
-			return FVoxelMaterial::CreateFromSingleIndex(MaterialIndex(CookedGround.SurfaceType));
+		else if (MaterialConfig == EVoxelMaterialConfig::SingleIndex) {
+			NewMaterial.SetMaterialConfig(EVoxelMaterialConfig::SingleIndex);
+			NewMaterial.SetSingleIndex((uint8)CookedGround.SurfaceType);
+			return NewMaterial.Build();
+		}
 		else if (CookedGround.SurfaceType == CookedGround.SurfaceTypeAdditional) {
-			return FVoxelMaterial::CreateFromDoubleIndex(MaterialIndex(CookedGround.SurfaceType), 0, 0.0f);
+			NewMaterial.SetMaterialConfig(EVoxelMaterialConfig::MultiIndex);
+			NewMaterial.AddMultiIndex((int)CookedGround.SurfaceType, 1.0);
+			return NewMaterial.Build();
 		}
 		else {
-			return FVoxelMaterial::CreateFromDoubleIndex(MaterialIndex(CookedGround.SurfaceType), MaterialIndex(CookedGround.SurfaceTypeAdditional), 0.3f);
+			NewMaterial.SetMaterialConfig(EVoxelMaterialConfig::MultiIndex);
+			NewMaterial.AddMultiIndex((int)CookedGround.SurfaceType, 0.7);
+			NewMaterial.AddMultiIndex((int)CookedGround.SurfaceTypeAdditional, 0.3);
+			return NewMaterial.Build();
 		}
 	}
 	else {
