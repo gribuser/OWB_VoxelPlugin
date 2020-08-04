@@ -90,38 +90,38 @@ v_flt FOWB_VoxelWorldGeneratorInstance::OWBHeightToVoxelHeight(double GroundElev
 	return GroundElevation / OpenWorldBakery->CellWidth * 2;
 }
 
-int MaterialIndex(EOWBGroundSurfaceTypes Surface) {
-	int MaterialD = 0;
-	switch (Surface)
-	{
-		case EOWBGroundSurfaceTypes::Unmarked: MaterialD = 0; break;
-		case EOWBGroundSurfaceTypes::Swamp: MaterialD = 1; break;
-		case EOWBGroundSurfaceTypes::Grass: MaterialD = 2; break;
-		case EOWBGroundSurfaceTypes::Bush: MaterialD = 3; break;
-		case EOWBGroundSurfaceTypes::RockWall: MaterialD = 4; break;
-		case EOWBGroundSurfaceTypes::RockFlat: MaterialD = 5; break;
-		case EOWBGroundSurfaceTypes::Forest: MaterialD = 6; break;
-		case EOWBGroundSurfaceTypes::LakeShore: MaterialD = 7; break;
-		case EOWBGroundSurfaceTypes::LakeShallow: MaterialD = 8; break;
-		case EOWBGroundSurfaceTypes::LakeBed: MaterialD = 9; break;
-		case EOWBGroundSurfaceTypes::SeaShoreSand: MaterialD = 10; break;
-		case EOWBGroundSurfaceTypes::SeaShoreRock: MaterialD = 11; break;
-		case EOWBGroundSurfaceTypes::SeaBed: MaterialD = 12; break;
-		case EOWBGroundSurfaceTypes::SeaShallowSand: MaterialD = 13; break;
-		case EOWBGroundSurfaceTypes::SeaShallowRock: MaterialD = 14; break;
-		case EOWBGroundSurfaceTypes::RiverShore: MaterialD = 15; break;
-		case EOWBGroundSurfaceTypes::RiverShallowSand: MaterialD = 16; break;
-		case EOWBGroundSurfaceTypes::RiverShallowRock: MaterialD = 17; break;
-		case EOWBGroundSurfaceTypes::RiverBed: MaterialD = 18; break;
-		case EOWBGroundSurfaceTypes::SpringHard: MaterialD = 19; break;
-		case EOWBGroundSurfaceTypes::SpringEasy: MaterialD = 20; break;
-		case EOWBGroundSurfaceTypes::LandSlidAged: MaterialD = 21; break;
-		case EOWBGroundSurfaceTypes::LandSlideSmooth: MaterialD = 22; break;
-		case EOWBGroundSurfaceTypes::LandSlideRocky: MaterialD = 23; break;
-		case EOWBGroundSurfaceTypes::ErrorTerrain: MaterialD = 24; break;
-	}
-	return MaterialD;
-}
+//int MaterialIndex(EOWBGroundSurfaceTypes Surface) {
+//	int MaterialD = 0;
+//	switch (Surface)
+//	{
+//		case EOWBGroundSurfaceTypes::Unmarked: MaterialD = 0; break;
+//		case EOWBGroundSurfaceTypes::Swamp: MaterialD = 1; break;
+//		case EOWBGroundSurfaceTypes::Grass: MaterialD = 2; break;
+//		case EOWBGroundSurfaceTypes::Bush: MaterialD = 3; break;
+//		case EOWBGroundSurfaceTypes::RockWall: MaterialD = 4; break;
+//		case EOWBGroundSurfaceTypes::RockFlat: MaterialD = 5; break;
+//		case EOWBGroundSurfaceTypes::Forest: MaterialD = 6; break;
+//		case EOWBGroundSurfaceTypes::LakeShore: MaterialD = 7; break;
+//		case EOWBGroundSurfaceTypes::LakeShallow: MaterialD = 8; break;
+//		case EOWBGroundSurfaceTypes::LakeBed: MaterialD = 9; break;
+//		case EOWBGroundSurfaceTypes::SeaShoreSand: MaterialD = 10; break;
+//		case EOWBGroundSurfaceTypes::SeaShoreRock: MaterialD = 11; break;
+//		case EOWBGroundSurfaceTypes::SeaBed: MaterialD = 12; break;
+//		case EOWBGroundSurfaceTypes::SeaShallowSand: MaterialD = 13; break;
+//		case EOWBGroundSurfaceTypes::SeaShallowRock: MaterialD = 14; break;
+//		case EOWBGroundSurfaceTypes::RiverShore: MaterialD = 15; break;
+//		case EOWBGroundSurfaceTypes::RiverShallowSand: MaterialD = 16; break;
+//		case EOWBGroundSurfaceTypes::RiverShallowRock: MaterialD = 17; break;
+//		case EOWBGroundSurfaceTypes::RiverBed: MaterialD = 18; break;
+//		case EOWBGroundSurfaceTypes::SpringHard: MaterialD = 19; break;
+//		case EOWBGroundSurfaceTypes::SpringEasy: MaterialD = 20; break;
+//		case EOWBGroundSurfaceTypes::LandSlidAged: MaterialD = 21; break;
+//		case EOWBGroundSurfaceTypes::LandSlideSmooth: MaterialD = 22; break;
+//		case EOWBGroundSurfaceTypes::LandSlideRocky: MaterialD = 23; break;
+//		case EOWBGroundSurfaceTypes::ErrorTerrain: MaterialD = 24; break;
+//	}
+//	return MaterialD;
+//}
 
 FVoxelMaterial FOWB_VoxelWorldGeneratorInstance::GetMaterialImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const
 {
