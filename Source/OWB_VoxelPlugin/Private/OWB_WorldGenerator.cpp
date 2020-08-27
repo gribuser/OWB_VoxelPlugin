@@ -174,12 +174,12 @@ FVoxelMaterial FOWB_VoxelWorldGeneratorInstance::GetMaterialImpl(v_flt X, v_flt 
 	}
 }
 
-TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FIntBox& Bounds, int32 LOD, const FVoxelItemStack& Items) const
+TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVoxelIntBox& Bounds, int32 LOD, const FVoxelItemStack& Items) const
 {
 	if (OpenWorldBakery->Chunks.Num() == 0)
 		return TVoxelRange<v_flt>::Infinite();
 
-	FIntBox ABounds = Bounds;
+	FVoxelIntBox ABounds = Bounds;
 
 	ABounds.Min.X = VoxelXToOWBX(ABounds.Min.X);
 	ABounds.Max.X = VoxelXToOWBX(ABounds.Max.X);
@@ -195,7 +195,7 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FIn
 	if (
 		ABounds.Min.X > OpenWorldBakery->MapWidth || ABounds.Max.X < 0
 		|| ABounds.Min.Y > OpenWorldBakery->MapHeight || ABounds.Max.Y < 0
-		|| ABounds.Min.Z > 2*OpenWorldBakery->ChunksLayaut.MaxZVoxelOnMap) {
+		|| ABounds.Min.Z > 2*OpenWorldBakery->ChunksLayout.MaxZVoxelOnMap) {
 //		|| ABounds.Min.Z > FMath::Max(OpenWorldBakery->MapWidth, OpenWorldBakery->MapHeight)) {
 		return Out;
 	}
@@ -205,20 +205,20 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FIn
 	if (ABounds.Max.Z < OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep))
 		return { -10.0,-10.0 };
 
-	FIntBox ChunkBounds = ABounds;
-	ChunkBounds.Min.X /= OpenWorldBakery->ChunksLayaut.ChunkWidth;
-	ChunkBounds.Max.X /= OpenWorldBakery->ChunksLayaut.ChunkWidth;
-	ChunkBounds.Min.Y /= OpenWorldBakery->ChunksLayaut.ChunkHeight;
-	ChunkBounds.Max.Y /= OpenWorldBakery->ChunksLayaut.ChunkHeight;
+	FVoxelIntBox ChunkBounds = ABounds;
+	ChunkBounds.Min.X /= OpenWorldBakery->ChunksLayout.ChunkWidth;
+	ChunkBounds.Max.X /= OpenWorldBakery->ChunksLayout.ChunkWidth;
+	ChunkBounds.Min.Y /= OpenWorldBakery->ChunksLayout.ChunkHeight;
+	ChunkBounds.Max.Y /= OpenWorldBakery->ChunksLayout.ChunkHeight;
 
-	ChunkBounds.Min.X = FMath::Clamp(ChunkBounds.Min.X, 0, OpenWorldBakery->ChunksLayaut.XChunks - 1);
-	ChunkBounds.Max.X = FMath::Clamp(ChunkBounds.Max.X, 0, OpenWorldBakery->ChunksLayaut.XChunks - 1);
-	ChunkBounds.Min.Y = FMath::Clamp(ChunkBounds.Min.Y, 0, OpenWorldBakery->ChunksLayaut.YChunks - 1);
-	ChunkBounds.Max.Y = FMath::Clamp(ChunkBounds.Max.Y, 0, OpenWorldBakery->ChunksLayaut.YChunks - 1);
+	ChunkBounds.Min.X = FMath::Clamp(ChunkBounds.Min.X, 0, OpenWorldBakery->ChunksLayout.XChunks - 1);
+	ChunkBounds.Max.X = FMath::Clamp(ChunkBounds.Max.X, 0, OpenWorldBakery->ChunksLayout.XChunks - 1);
+	ChunkBounds.Min.Y = FMath::Clamp(ChunkBounds.Min.Y, 0, OpenWorldBakery->ChunksLayout.YChunks - 1);
+	ChunkBounds.Max.Y = FMath::Clamp(ChunkBounds.Max.Y, 0, OpenWorldBakery->ChunksLayout.YChunks - 1);
 
 	for (int x = ChunkBounds.Min.X; x <= ChunkBounds.Max.X; x++) {
 		for (int y = ChunkBounds.Min.Y; y <= ChunkBounds.Max.Y; y++) {
-			const FOWBMeshBlocks_set& ChunkData = OpenWorldBakery->Chunks[x + y * OpenWorldBakery->ChunksLayaut.XChunks];
+			const FOWBMeshBlocks_set& ChunkData = OpenWorldBakery->Chunks[x + y * OpenWorldBakery->ChunksLayout.XChunks];
 			if (ChunkData.ChunkContents.Contains(Generator.Layer)) {
 				const FOWBMeshChunk& MeshChunk = ChunkData.ChunkContents[Generator.Layer];
 				if (MeshChunk.BlocksType == Generator.Layer) {

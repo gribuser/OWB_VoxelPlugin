@@ -20,7 +20,7 @@
 	//~ End UVoxelWorldGenerator Interface
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")
-	TEnumAsByte<EOWBMeshBlockTypes> Layer = EOWBMeshBlockTypes::Ground;
+	EOWBMeshBlockTypes Layer = EOWBMeshBlockTypes::Ground;
  };
 
 
@@ -35,7 +35,7 @@
 	 v_flt GetValueImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const;
 	 FVoxelMaterial GetMaterialImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const;
 
-	 TVoxelRange<v_flt> GetValueRangeImpl(const FIntBox& Bounds, int32 LOD, const FVoxelItemStack& Items) const;
+	 TVoxelRange<v_flt> GetValueRangeImpl(const FVoxelIntBox& Bounds, int32 LOD, const FVoxelItemStack& Items) const;
 
 	 virtual FVector GetUpVector(v_flt X, v_flt Y, v_flt Z) const override final;
 	 //~ End FVoxelWorldGeneratorInstance Interface
