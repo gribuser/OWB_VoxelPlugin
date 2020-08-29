@@ -39,10 +39,10 @@ int FOWB_VoxelWorldGeneratorInstance::VoxelYToOWBY(const v_flt Y) const {
 }
 
 double FOWB_VoxelWorldGeneratorInstance::VoxelZToOWBZ(const v_flt Z) const {
-	return Z - 2;
+	return Z - 2.0;
 }
 v_flt FOWB_VoxelWorldGeneratorInstance::OWBZToVoxelZ(const double Z) const {
-	return Z + 2;
+	return Z + 2.0;
 }
 
 v_flt FOWB_VoxelWorldGeneratorInstance::GetValueImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const
@@ -59,34 +59,22 @@ v_flt FOWB_VoxelWorldGeneratorInstance::GetValueImpl(v_flt X, v_flt Y, v_flt Z, 
 	}
 
 	if (Z <= OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep)) {
-		return -10;
+		return Generator.Layer == EOWBMeshBlockTypes::Ground?-10 : 10;
 	}
 
 	const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[iX + iY * OpenWorldBakery->MapWidth];
-//	const OpenWorldBakery::FSquareMeter& Ground = OpenWorldBakery->Ground(iX, iY);
 
 	double Elevation = CookedGround.HeightByType(Generator.Layer);
-	//switch (Generator.Layer)
-	//{
-	//case EOWBMeshBlockTypes::Ground: Elevation = Ground.GroundElevation;
-	//	break;
-	//case EOWBMeshBlockTypes::FreshWater: Elevation = OpenWorldBakery->GetWaterHeightAt(Ground);
-	//	break;
-	////case EOWBMeshBlockTypes::River: Elevation = OpenWorldBakery->GetWaterHeightAt(Ground);
-	////	break;
-	////case EOWBMeshBlockTypes::Ocean:
-	////	break;
-	//default:
-	//	break;
-	//}
-
 
 	const float HeightInVoxels = OWBHeightToVoxelHeight(Elevation);
 
 	// Positive value -> empty voxel
 	// Negative value -> full voxel
 	// The voxel value is clamped between -1 and 1. That can result in a bad gradient/normal. To solve that we divide it
-	return (iZ - HeightInVoxels)/5;
+	v_flt RetVal = (iZ - HeightInVoxels) / 5;
+	if (Generator.Layer == EOWBMeshBlockTypes::FreshWater && RetVal < -1.0)
+		RetVal = 10.0;
+	return RetVal;
 }
 
 v_flt FOWB_VoxelWorldGeneratorInstance::OWBHeightToVoxelHeight(double GroundElevation) const {
@@ -198,15 +186,18 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVo
 	if (
 		ABounds.Min.X > OpenWorldBakery->MapWidth || ABounds.Max.X < 0
 		|| ABounds.Min.Y > OpenWorldBakery->MapHeight || ABounds.Max.Y < 0
-		|| ABounds.Min.Z > 2*OpenWorldBakery->ChunksLayout.MaxZVoxelOnMap) {
-//		|| ABounds.Min.Z > FMath::Max(OpenWorldBakery->MapWidth, OpenWorldBakery->MapHeight)) {
+		|| ABounds.Min.Z > 2*OpenWorldBakery->ChunksLayout.MaxZVoxelOnMap)
+	{
 		return Out;
 	}
 
 	//return TVoxelRange<v_flt>::Infinite();
 
 	if (ABounds.Max.Z < OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep))
-		return { -10.0,-10.0 };
+//		if (Generator.Layer == EOWBMeshBlockTypes::Ground)
+		//	return { -10.0,-10.0 };
+		//else
+			return Out;
 
 	FVoxelIntBox ChunkBounds = ABounds;
 	ChunkBounds.Min.X /= OpenWorldBakery->ChunksLayout.ChunkWidth;
@@ -230,14 +221,16 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVo
 						|| MeshChunk.MinPoint.Y >= ABounds.Max.Y
 						|| MeshChunk.MaxPoint.Y <= ABounds.Min.Y)) {
 
-						double Min_iZ = VoxelZToOWBZ(ChunkBounds.Min.Z);
-						double Max_iZ = VoxelZToOWBZ(ChunkBounds.Max.Z);
+						float Min_iZ = VoxelZToOWBZ(ChunkBounds.Min.Z);
+						float Max_iZ = VoxelZToOWBZ(ChunkBounds.Max.Z);
 
 						float MaxHeightInVoxels = OWBHeightToVoxelHeight(MeshChunk.MaxPoint.Z);
 						float MinHeightInVoxels = OWBHeightToVoxelHeight(MeshChunk.MinPoint.Z);
 
-						float MinVal = (Min_iZ - MaxHeightInVoxels) / 5;
-						float MaxVal = (Max_iZ - MinHeightInVoxels) / 5;
+						float MinVal = (float)(Min_iZ - MaxHeightInVoxels) / 5.0;
+						float MaxVal = (float)(Max_iZ - MinHeightInVoxels) / 5.0;
+						//float MinVal = (float)(Min_iZ - MeshChunk.MaxPoint.Z) / 5.0;
+						//float MaxVal = (float)(Max_iZ - MeshChunk.MinPoint.Z) / 5.0;
 
 						// Ok, this one incide Bounds
 						if (Out.Min > MinVal)
