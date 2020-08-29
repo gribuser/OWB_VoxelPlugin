@@ -47,6 +47,9 @@ v_flt FOWB_VoxelWorldGeneratorInstance::OWBZToVoxelZ(const double Z) const {
 
 v_flt FOWB_VoxelWorldGeneratorInstance::GetValueImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const
 {
+	if (!IsValid(OpenWorldBakery) || OpenWorldBakery->Chunks.Num() == 0)
+		return 10.0;
+
 	int iX = VoxelXToOWBX(X);
 	int iY = VoxelYToOWBY(Y);
 	double iZ = VoxelZToOWBZ(Z);
@@ -176,7 +179,7 @@ FVoxelMaterial FOWB_VoxelWorldGeneratorInstance::GetMaterialImpl(v_flt X, v_flt 
 
 TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVoxelIntBox& Bounds, int32 LOD, const FVoxelItemStack& Items) const
 {
-	if (OpenWorldBakery->Chunks.Num() == 0)
+	if (!IsValid(OpenWorldBakery) || OpenWorldBakery->Chunks.Num() == 0)
 		return TVoxelRange<v_flt>::Infinite();
 
 	FVoxelIntBox ABounds = Bounds;
