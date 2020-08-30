@@ -84,4 +84,5 @@
 	 v_flt OWBZToVoxelZ(const double Z) const;
 	 v_flt OWBHeightToVoxelHeight(double GroundElevation) const;
 	 EVoxelMaterialConfig MaterialConfig;
+	 double MyOceanDeep = 0.0;
  };

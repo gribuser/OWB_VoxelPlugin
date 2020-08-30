@@ -28,7 +28,7 @@ FOWB_VoxelWorldGeneratorInstance::FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGen
 
 void FOWB_VoxelWorldGeneratorInstance::Init(const FVoxelWorldGeneratorInit& InitStruct)
 {
-//	MaterialConfig = InitStruct.DebugMaterialConfig;
+	//MyOceanDeep = OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep);
 }
 
 int FOWB_VoxelWorldGeneratorInstance::VoxelXToOWBX(const v_flt X) const {
@@ -59,14 +59,12 @@ v_flt FOWB_VoxelWorldGeneratorInstance::GetValueImpl(v_flt X, v_flt Y, v_flt Z, 
 	}
 
 	if (Z <= OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep)) {
-		return Generator.Layer == EOWBMeshBlockTypes::Ground?-10 : 10;
+		return 10.0;
 	}
 
 	const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[iX + iY * OpenWorldBakery->MapWidth];
 
 	double Elevation = CookedGround.HeightByType(Generator.Layer);
-	if (Elevation < OpenWorldBakery->OceanDeep)
-		Elevation = OpenWorldBakery->OceanDeep;
 
 	const float HeightInVoxels = OWBHeightToVoxelHeight(Elevation);
 
