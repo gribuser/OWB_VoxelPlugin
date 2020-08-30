@@ -2,7 +2,7 @@
 
 #include "OWB_WorldGenerator.h"
 #include "VoxelMaterialBuilder.h"
-//#include "HeightMapTerrain.h"
+
 
 TVoxelSharedRef<FVoxelWorldGeneratorInstance> UOWB_WorldGenerator::GetInstance()
 {
@@ -13,12 +13,6 @@ TVoxelSharedRef<FVoxelWorldGeneratorInstance> UOWB_WorldGenerator::GetInstance()
 	return MakeVoxelShared<FOWB_VoxelWorldGeneratorInstance>(*this);
 }
 
-//
-//void UOWB_WorldGenerator::SetLayer(const EOWBMeshBlockTypes& RenderLayer) {
-//	Layer = RenderLayer;
-//}
-
-
 ///////////////////////////////////////////////////////////////////////////////
 
 FOWB_VoxelWorldGeneratorInstance::FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGenerator& MyGenerator)
@@ -28,7 +22,8 @@ FOWB_VoxelWorldGeneratorInstance::FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGen
 
 void FOWB_VoxelWorldGeneratorInstance::Init(const FVoxelWorldGeneratorInit& InitStruct)
 {
-	//MyOceanDeep = OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep);
+	if (ensureMsgf(OpenWorldBakery != NULL, TEXT("OpenWorldBakery was not set up)")))
+		MyOceanDeep = OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep);
 }
 
 int FOWB_VoxelWorldGeneratorInstance::VoxelXToOWBX(const v_flt X) const {
@@ -58,8 +53,8 @@ v_flt FOWB_VoxelWorldGeneratorInstance::GetValueImpl(v_flt X, v_flt Y, v_flt Z, 
 		return 10.0;
 	}
 
-	if (Z <= OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep)) {
-		return 10.0;
+	if (Z <= MyOceanDeep) {
+		return Generator.Layer == EOWBMeshBlockTypes::Ground ? -10 : 10;
 	}
 
 	const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[iX + iY * OpenWorldBakery->MapWidth];
@@ -174,7 +169,7 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVo
 
 	//return TVoxelRange<v_flt>::Infinite();
 
-	if (ABounds.Max.Z < OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep)) {
+	if (ABounds.Max.Z < MyOceanDeep) {
 		//UE_LOG(LogTemp, Log, TEXT("EMPTY 2"));
 		return Out;
 	}
