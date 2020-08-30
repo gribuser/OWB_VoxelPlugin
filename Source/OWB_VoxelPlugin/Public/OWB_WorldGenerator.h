@@ -15,12 +15,46 @@
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")
 	UOpenWorldBakery* OpenWorldBakery = NULL;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")
+	TMap<EOWBGroundSurfaceTypes, uint8> SurfaceTypeMapping = {
+		{EOWBGroundSurfaceTypes::Unmarked, 0},
+		{EOWBGroundSurfaceTypes::Swamp, 1},
+		{EOWBGroundSurfaceTypes::Forest, 2},
+		{EOWBGroundSurfaceTypes::Grass, 3},
+		{EOWBGroundSurfaceTypes::Bush, 4},
+		{EOWBGroundSurfaceTypes::RockWall, 5},
+		{EOWBGroundSurfaceTypes::RockFlat, 6},
+		{EOWBGroundSurfaceTypes::LakeShore, 7},
+		{EOWBGroundSurfaceTypes::LakeBed, 8},
+		{EOWBGroundSurfaceTypes::LakeShallow, 9},
+		{EOWBGroundSurfaceTypes::SeaShoreSand, 10},
+		{EOWBGroundSurfaceTypes::SeaShoreRock, 11},
+		{EOWBGroundSurfaceTypes::SeaBed, 12},
+		{EOWBGroundSurfaceTypes::SeaShallowSand, 13},
+		{EOWBGroundSurfaceTypes::SeaShallowRock, 14},
+		{EOWBGroundSurfaceTypes::RiverShoreSand, 15},
+		{EOWBGroundSurfaceTypes::RiverShoreRock, 16},
+		{EOWBGroundSurfaceTypes::RiverShoreWaterfall, 17},
+		{EOWBGroundSurfaceTypes::RiverShallowSand, 18},
+		{EOWBGroundSurfaceTypes::RiverShallowRock, 19},
+		{EOWBGroundSurfaceTypes::RiverShallowWaterfall, 20},
+		{EOWBGroundSurfaceTypes::RiverBed, 21},
+		{EOWBGroundSurfaceTypes::SpringEasy, 22},
+		{EOWBGroundSurfaceTypes::SpringHard, 23},
+		{EOWBGroundSurfaceTypes::LandSlideAged, 24},
+		{EOWBGroundSurfaceTypes::LandSlideSmooth, 25},
+		{EOWBGroundSurfaceTypes::LandSlideRocky, 26},
+		{EOWBGroundSurfaceTypes::ErrorTerrain, 27}
+	};
+
 	//~ Begin UVoxelWorldGenerator Interface
 	virtual TVoxelSharedRef<FVoxelWorldGeneratorInstance> GetInstance() override;
 	//~ End UVoxelWorldGenerator Interface
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")
 	EOWBMeshBlockTypes Layer = EOWBMeshBlockTypes::Ground;
+
+	uint8 MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType);
  };
 
 

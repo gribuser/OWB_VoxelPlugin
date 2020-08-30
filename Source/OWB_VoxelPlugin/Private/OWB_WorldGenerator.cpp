@@ -39,10 +39,10 @@ int FOWB_VoxelWorldGeneratorInstance::VoxelYToOWBY(const v_flt Y) const {
 }
 
 double FOWB_VoxelWorldGeneratorInstance::VoxelZToOWBZ(const v_flt Z) const {
-	return Z - 2.0;
+	return Z * 2;
 }
 v_flt FOWB_VoxelWorldGeneratorInstance::OWBZToVoxelZ(const double Z) const {
-	return Z + 2.0;
+	return Z / 2;
 }
 
 v_flt FOWB_VoxelWorldGeneratorInstance::GetValueImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const
@@ -65,6 +65,8 @@ v_flt FOWB_VoxelWorldGeneratorInstance::GetValueImpl(v_flt X, v_flt Y, v_flt Z, 
 	const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[iX + iY * OpenWorldBakery->MapWidth];
 
 	double Elevation = CookedGround.HeightByType(Generator.Layer);
+	if (Elevation < OpenWorldBakery->OceanDeep)
+		Elevation = OpenWorldBakery->OceanDeep;
 
 	const float HeightInVoxels = OWBHeightToVoxelHeight(Elevation);
 
@@ -81,38 +83,13 @@ v_flt FOWB_VoxelWorldGeneratorInstance::OWBHeightToVoxelHeight(double GroundElev
 	return GroundElevation / OpenWorldBakery->CellWidth * 2;
 }
 
-//int MaterialIndex(EOWBGroundSurfaceTypes Surface) {
-//	int MaterialD = 0;
-//	switch (Surface)
-//	{
-//		case EOWBGroundSurfaceTypes::Unmarked: MaterialD = 0; break;
-//		case EOWBGroundSurfaceTypes::Swamp: MaterialD = 1; break;
-//		case EOWBGroundSurfaceTypes::Grass: MaterialD = 2; break;
-//		case EOWBGroundSurfaceTypes::Bush: MaterialD = 3; break;
-//		case EOWBGroundSurfaceTypes::RockWall: MaterialD = 4; break;
-//		case EOWBGroundSurfaceTypes::RockFlat: MaterialD = 5; break;
-//		case EOWBGroundSurfaceTypes::Forest: MaterialD = 6; break;
-//		case EOWBGroundSurfaceTypes::LakeShore: MaterialD = 7; break;
-//		case EOWBGroundSurfaceTypes::LakeShallow: MaterialD = 8; break;
-//		case EOWBGroundSurfaceTypes::LakeBed: MaterialD = 9; break;
-//		case EOWBGroundSurfaceTypes::SeaShoreSand: MaterialD = 10; break;
-//		case EOWBGroundSurfaceTypes::SeaShoreRock: MaterialD = 11; break;
-//		case EOWBGroundSurfaceTypes::SeaBed: MaterialD = 12; break;
-//		case EOWBGroundSurfaceTypes::SeaShallowSand: MaterialD = 13; break;
-//		case EOWBGroundSurfaceTypes::SeaShallowRock: MaterialD = 14; break;
-//		case EOWBGroundSurfaceTypes::RiverShore: MaterialD = 15; break;
-//		case EOWBGroundSurfaceTypes::RiverShallowSand: MaterialD = 16; break;
-//		case EOWBGroundSurfaceTypes::RiverShallowRock: MaterialD = 17; break;
-//		case EOWBGroundSurfaceTypes::RiverBed: MaterialD = 18; break;
-//		case EOWBGroundSurfaceTypes::SpringHard: MaterialD = 19; break;
-//		case EOWBGroundSurfaceTypes::SpringEasy: MaterialD = 20; break;
-//		case EOWBGroundSurfaceTypes::LandSlidAged: MaterialD = 21; break;
-//		case EOWBGroundSurfaceTypes::LandSlideSmooth: MaterialD = 22; break;
-//		case EOWBGroundSurfaceTypes::LandSlideRocky: MaterialD = 23; break;
-//		case EOWBGroundSurfaceTypes::ErrorTerrain: MaterialD = 24; break;
-//	}
-//	return MaterialD;
-//}
+uint8 UOWB_WorldGenerator::MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType) {
+	uint8 Out = 0;
+	if (SurfaceTypeMapping.Contains(SurfaceType)) {
+		Out = SurfaceTypeMapping[SurfaceType];
+	}
+	return Out;
+}
 
 FVoxelMaterial FOWB_VoxelWorldGeneratorInstance::GetMaterialImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const
 {
@@ -172,14 +149,19 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVo
 
 	FVoxelIntBox ABounds = Bounds;
 
+	//UE_LOG(LogTemp, Log, TEXT("GetValueRangeImpl %i:%i:%i %i:%i:%i"),
+	//	ABounds.Min.X, ABounds.Min.Y, ABounds.Min.Z,
+	//	ABounds.Max.X, ABounds.Max.Y, ABounds.Max.Z
+	//);
+
 	ABounds.Min.X = VoxelXToOWBX(ABounds.Min.X);
 	ABounds.Max.X = VoxelXToOWBX(ABounds.Max.X);
 
 	ABounds.Min.Y = VoxelYToOWBY(ABounds.Min.Y);
 	ABounds.Max.Y = VoxelYToOWBY(ABounds.Max.Y);
 
-	ABounds.Min.Z = VoxelZToOWBZ(ABounds.Min.Z);
-	ABounds.Max.Z = VoxelZToOWBZ(ABounds.Max.Z);
+	//ABounds.Min.Z = VoxelZToOWBZ(ABounds.Min.Z);
+	//ABounds.Max.Z = VoxelZToOWBZ(ABounds.Max.Z);
 
 	TVoxelRange<v_flt> Out = { 10.0, 10.0 };
 
@@ -188,16 +170,16 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVo
 		|| ABounds.Min.Y > OpenWorldBakery->MapHeight || ABounds.Max.Y < 0
 		|| ABounds.Min.Z > 2*OpenWorldBakery->ChunksLayout.MaxZVoxelOnMap)
 	{
+		//UE_LOG(LogTemp, Log, TEXT("EMPTY 1"));
 		return Out;
 	}
 
 	//return TVoxelRange<v_flt>::Infinite();
 
-	if (ABounds.Max.Z < OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep))
-//		if (Generator.Layer == EOWBMeshBlockTypes::Ground)
-		//	return { -10.0,-10.0 };
-		//else
-			return Out;
+	if (ABounds.Max.Z < OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep)) {
+		//UE_LOG(LogTemp, Log, TEXT("EMPTY 2"));
+		return Out;
+	}
 
 	FVoxelIntBox ChunkBounds = ABounds;
 	ChunkBounds.Min.X /= OpenWorldBakery->ChunksLayout.ChunkWidth;
@@ -221,16 +203,8 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVo
 						|| MeshChunk.MinPoint.Y >= ABounds.Max.Y
 						|| MeshChunk.MaxPoint.Y <= ABounds.Min.Y)) {
 
-						float Min_iZ = VoxelZToOWBZ(ChunkBounds.Min.Z);
-						float Max_iZ = VoxelZToOWBZ(ChunkBounds.Max.Z);
-
-						float MaxHeightInVoxels = OWBHeightToVoxelHeight(MeshChunk.MaxPoint.Z);
-						float MinHeightInVoxels = OWBHeightToVoxelHeight(MeshChunk.MinPoint.Z);
-
-						float MinVal = (float)(Min_iZ - MaxHeightInVoxels) / 5.0;
-						float MaxVal = (float)(Max_iZ - MinHeightInVoxels) / 5.0;
-						//float MinVal = (float)(Min_iZ - MeshChunk.MaxPoint.Z) / 5.0;
-						//float MaxVal = (float)(Max_iZ - MeshChunk.MinPoint.Z) / 5.0;
+						float MinVal = (float)(ChunkBounds.Min.Z - MeshChunk.MaxPoint.Z) / 5.0;
+						float MaxVal = (float)(ChunkBounds.Max.Z - MeshChunk.MinPoint.Z) / 5.0;
 
 						// Ok, this one incide Bounds
 						if (Out.Min > MinVal)
@@ -242,6 +216,7 @@ TVoxelRange<v_flt> FOWB_VoxelWorldGeneratorInstance::GetValueRangeImpl(const FVo
 			}
 		}
 	}
+	//UE_LOG(LogTemp, Log, TEXT("CALC %1.1f - %1.1f"),Out.Min, Out.Max);
 
 	return Out;
 }
