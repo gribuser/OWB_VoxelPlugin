@@ -3,7 +3,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "OpenWorldBakery.h"
-#include "VoxelWorldGenerators/VoxelWorldGeneratorHelpers.h"
+#include "VoxelGenerators/VoxelGeneratorHelpers.h"
 #include "OWB_WorldGenerator.generated.h"
 
  UCLASS(Blueprintable)
@@ -48,7 +48,7 @@
 	};
 
 	//~ Begin UVoxelWorldGenerator Interface
-	virtual TVoxelSharedRef<FVoxelWorldGeneratorInstance> GetInstance() override;
+	virtual TVoxelSharedRef<FVoxelGeneratorInstance> GetInstance() override;
 	//~ End UVoxelWorldGenerator Interface
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")
@@ -58,9 +58,10 @@
  };
 
 
- class FOWB_VoxelWorldGeneratorInstance : public TVoxelWorldGeneratorInstanceHelper<FOWB_VoxelWorldGeneratorInstance, UOWB_WorldGenerator>
+ class FOWB_VoxelWorldGeneratorInstance : public TVoxelGeneratorInstanceHelper<FOWB_VoxelWorldGeneratorInstance, UOWB_WorldGenerator>
  {
  public:
+	 using Super = TVoxelGeneratorInstanceHelper<FOWB_VoxelWorldGeneratorInstance, UOWB_WorldGenerator>;
 	 explicit FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGenerator& MyGenerator);
 
 	 //~ Begin FVoxelWorldGeneratorInstance Interface

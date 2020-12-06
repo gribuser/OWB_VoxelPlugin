@@ -16,7 +16,7 @@ TVoxelSharedRef<FVoxelWorldGeneratorInstance> UOWB_WorldGenerator::GetInstance()
 ///////////////////////////////////////////////////////////////////////////////
 
 FOWB_VoxelWorldGeneratorInstance::FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGenerator& MyGenerator)
-	:TVoxelWorldGeneratorInstanceHelper(&MyGenerator),OpenWorldBakery(MyGenerator.OpenWorldBakery), Generator(MyGenerator)
+	:TVoxelGeneratorInstanceHelper(&MyGenerator),OpenWorldBakery(MyGenerator.OpenWorldBakery), Generator(MyGenerator)
 {
 }
 
