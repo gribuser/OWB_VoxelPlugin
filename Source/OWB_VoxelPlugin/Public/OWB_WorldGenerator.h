@@ -7,7 +7,7 @@
 #include "OWB_WorldGenerator.generated.h"
 
  UCLASS(Blueprintable)
- class UOWB_WorldGenerator : public UVoxelWorldGenerator
+ class UOWB_WorldGenerator : public UVoxelGenerator
  {
 	 GENERATED_BODY()
 
