@@ -65,7 +65,7 @@
 	 explicit FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGenerator& MyGenerator);
 
 	 //~ Begin FVoxelWorldGeneratorInstance Interface
-	 virtual void Init(const FVoxelWorldGeneratorInit& InitStruct) override;
+	 virtual void Init(const FVoxelGeneratorInit& InitStruct) override;
 
 	 v_flt GetValueImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const;
 	 FVoxelMaterial GetMaterialImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const;

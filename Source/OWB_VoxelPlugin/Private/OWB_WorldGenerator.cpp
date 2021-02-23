@@ -4,7 +4,7 @@
 #include "VoxelMaterialBuilder.h"
 
 
-TVoxelSharedRef<FVoxelWorldGeneratorInstance> UOWB_WorldGenerator::GetInstance()
+TVoxelSharedRef<FVoxelGeneratorInstance> UOWB_WorldGenerator::GetInstance()
 {
 	if (ensureMsgf(OpenWorldBakery != NULL, TEXT("OpenWorldBakery was not set up)"))) {
 //		return nullptr;
@@ -20,7 +20,7 @@ FOWB_VoxelWorldGeneratorInstance::FOWB_VoxelWorldGeneratorInstance(UOWB_WorldGen
 {
 }
 
-void FOWB_VoxelWorldGeneratorInstance::Init(const FVoxelWorldGeneratorInit& InitStruct)
+void FOWB_VoxelWorldGeneratorInstance::Init(const FVoxelGeneratorInit& InitStruct)
 {
 	if (ensureMsgf(OpenWorldBakery != NULL, TEXT("OpenWorldBakery was not set up)")))
 		MyOceanDeep = OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep);
