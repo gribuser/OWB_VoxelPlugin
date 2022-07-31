@@ -4,6 +4,12 @@
 #include "OpenWorldBakery.h"
 #include "OWB_WorldGenerator.generated.h"
 
+
+struct FIntBox {
+	FIntVector Min;
+	FIntVector Max;
+};
+
 USTRUCT(Blueprintable)
 struct OWB_VOXELPLUGIN_API FOWB_WorldGenerator : public FPrimitiveVoxelGenerator {
 	GENERATED_BODY()
@@ -56,10 +62,10 @@ public:
 		//uint8 MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType);
 
 
-	float GetValueImpl(float X, float Y, float Z, int LOD) const;
+	virtual FVoxelFloatDensity GetDensity(FVector3d Position) const;
 	// FVoxelMaterial GetMaterialImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const;
 
-	// TVoxelRange<v_flt> GetValueRangeImpl(const FVoxelIntBox& Bounds, int32 LOD, const FVoxelItemStack& Items) const;
+	virtual TVoxelRange<FVoxelFloatDensity> GetDensityRange(const FVoxelBox& Bounds) const override;
 
 
 	int VoxelXToOWBX(const float X) const;
