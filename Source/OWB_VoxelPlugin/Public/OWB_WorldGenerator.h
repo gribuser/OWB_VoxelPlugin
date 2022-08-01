@@ -22,6 +22,7 @@ public:
 		Layer = SRC.Layer;
 		return *this;
 	}
+	void Prepare();
 	FOWB_WorldGenerator() {}
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")

@@ -4,6 +4,9 @@ FOWB_WorldGenerator::FOWB_WorldGenerator(UOpenWorldBakery* AOpenWorldBakery):
 	OpenWorldBakery(AOpenWorldBakery)
 {
 	check(OpenWorldBakery);
+	Prepare();
+}
+void FOWB_WorldGenerator::Prepare() {
 	MyOceanDeep = OWBHeightToVoxelHeight(OpenWorldBakery->OceanDeep);
 }
 
@@ -15,10 +18,10 @@ int FOWB_WorldGenerator::VoxelYToOWBY(const float Y) const {
 }
 
 double FOWB_WorldGenerator::VoxelZToOWBZ(const float Z) const {
-	return Z * 2;
+	return Z;
 }
 float FOWB_WorldGenerator::OWBZToVoxelZ(const double Z) const {
-	return Z / 2;
+	return Z;
 }
 
 FVoxelFloatDensity FOWB_WorldGenerator::GetDensity(FVector3d Position) const
@@ -75,8 +78,8 @@ TVoxelRange<FVoxelFloatDensity> FOWB_WorldGenerator::GetDensityRange(const FVoxe
 	ABounds.Min.Y = VoxelYToOWBY(Bounds.Min.Y);
 	ABounds.Max.Y = VoxelYToOWBY(Bounds.Max.Y);
 
-	//ABounds.Min.Z = VoxelZToOWBZ(ABounds.Min.Z);
-	//ABounds.Max.Z = VoxelZToOWBZ(ABounds.Max.Z);
+	ABounds.Min.Z = VoxelZToOWBZ(Bounds.Min.Z);
+	ABounds.Max.Z = VoxelZToOWBZ(Bounds.Max.Z);
 
 	TVoxelRange<FVoxelFloatDensity> Out = { 10.0, 10.0 };
 
@@ -104,38 +107,82 @@ TVoxelRange<FVoxelFloatDensity> FOWB_WorldGenerator::GetDensityRange(const FVoxe
 	ChunkBounds.Max.X = FMath::Clamp(ChunkBounds.Max.X, 0, OpenWorldBakery->ChunksLayout.XChunks - 1);
 	ChunkBounds.Min.Y = FMath::Clamp(ChunkBounds.Min.Y, 0, OpenWorldBakery->ChunksLayout.YChunks - 1);
 	ChunkBounds.Max.Y = FMath::Clamp(ChunkBounds.Max.Y, 0, OpenWorldBakery->ChunksLayout.YChunks - 1);
+	//bool SURFACEHERE1 = false;
 
-	for (int x = ChunkBounds.Min.X; x <= ChunkBounds.Max.X; x++) {
-		for (int y = ChunkBounds.Min.Y; y <= ChunkBounds.Max.Y; y++) {
-			const FOWBMeshBlocks_set& ChunkData = OpenWorldBakery->Chunks[x + y * OpenWorldBakery->ChunksLayout.XChunks];
-			const FOWBMeshChunk* MeshChunk = ChunkData.ChunkContents.Find(Layer);
-			if (MeshChunk != NULL && MeshChunk->BlocksType == Layer
-					&&
-					!(MeshChunk->MinPoint.X >= ABounds.Max.X
-						|| MeshChunk->MaxPoint.X <= ABounds.Min.X
-						|| MeshChunk->MinPoint.Y >= ABounds.Max.Y
-						|| MeshChunk->MaxPoint.Y <= ABounds.Min.Y)) {
+	//for (int x = ChunkBounds.Min.X; x <= ChunkBounds.Max.X; x++) {
+	//	for (int y = ChunkBounds.Min.Y; y <= ChunkBounds.Max.Y; y++) {
+	//		const FOWBMeshBlocks_set& ChunkData = OpenWorldBakery->Chunks[x + y * OpenWorldBakery->ChunksLayout.XChunks];
+	//		const FOWBMeshChunk* MeshChunk = ChunkData.ChunkContents.Find(Layer);
+	//		if (MeshChunk != NULL && MeshChunk->BlocksType == Layer
+	//				&&
+	//				!(MeshChunk->MinPoint.X >= ABounds.Max.X
+	//					|| MeshChunk->MaxPoint.X < ABounds.Min.X
+	//					|| MeshChunk->MinPoint.Y >= ABounds.Max.Y
+	//					|| MeshChunk->MaxPoint.Y < ABounds.Min.Y)) {
 
-				float MinVal = (float)(ChunkBounds.Min.Z - MeshChunk->MaxPoint.Z) / 5.0;
-				float MaxVal = (float)(ChunkBounds.Max.Z - MeshChunk->MinPoint.Z) / 5.0;
+	//			float MinVal = OWBZToVoxelZ(ChunkBounds.Min.Z - MeshChunk->MaxPoint.Z);
+	//			float MaxVal = OWBZToVoxelZ(ChunkBounds.Max.Z - MeshChunk->MinPoint.Z);
 
-				// Ok, this one incide Bounds
-				if (Out.Min > MinVal) {
-					Out.Min = MinVal;
-				}
-				if (Out.Max < MaxVal) {
-					Out.Max = MaxVal;
-				}
+	//			// Ok, this one incide Bounds
+	//			if (Out.Min > MinVal) {
+	//				Out.Min = MinVal;
+	//			}
+	//			if (Out.Max < MaxVal) {
+	//				Out.Max = MaxVal;
+	//			}
+	//			if (Out.Min < 0.0 && Out.Max > 0.0) {
+	//				SURFACEHERE1 = true;
+	//				goto SURFACEHERE;
+	//			}
+	//		}
+	//	}
+	//}
+	bool SURFACEHERE2 = false;
+	Out = { -10.0, 10.0 };
+	float HeightInVoxels;
+	FIntVector2 Min(
+		FMath::Clamp(ABounds.Min.X, 0, OpenWorldBakery->MapWidth),
+		FMath::Clamp(ABounds.Min.Y, 0, OpenWorldBakery->MapWidth)
+	);
+	FIntVector2 Max(
+		FMath::Clamp(ABounds.Max.X, 0, OpenWorldBakery->MapWidth),
+		FMath::Clamp(ABounds.Max.Y, 0, OpenWorldBakery->MapWidth)
+	);
+
+
+	for (int x = Min.X; x < Max.X; x++) {
+		for (int y = Min.Y; y < Max.Y; y++) {
+			const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[x + y * OpenWorldBakery->MapWidth];
+
+			HeightInVoxels = OWBHeightToVoxelHeight(CookedGround.HeightByType(Layer));
+			if (HeightInVoxels >= ABounds.Min.Z && HeightInVoxels < Bounds.Max.Z) {
+				return Out;
 			}
 		}
 	}
-	//UE_LOG(LogTemp, Log, TEXT("CALC %1.1f - %1.1f"),Out.Min, Out.Max);
-
+	if (HeightInVoxels < ABounds.Min.Z) {
+		Out = { -10.0, -10.0 };
+	} else {
+		Out = { 10.0, 10.0 };
+	}
 	return Out;
+////	if (Out.Min > 0.0 || Out.Max < 0.0) {
+//		FVector VMin = Bounds.Min;
+//		FVector Vax = Bounds.Max;
+//		float Min = Out.Min.GetStorage();
+//		float Max = Out.Max.GetStorage();
+//		FString Title = (Out.Min < 0.0 && Out.Max > 0.0) ? "*" : " ";
+//		UE_LOG(LogTemp, Log, TEXT("%s %1.0f:%1.0f:%1.0f %1.0f:%1.0f:%1.0f %1.1f-%1.1f"),
+//					 *Title, VMin.X, VMin.Y, VMin.Z,
+//					 Vax.X, Vax.Y, Vax.Z,
+//					 Min, Max);
+////	}
+//
+//	return Out;
 }
 
 float FOWB_WorldGenerator::OWBHeightToVoxelHeight(double GroundElevation) const {
-	return GroundElevation / OpenWorldBakery->CellWidth * 2;
+	return GroundElevation / OpenWorldBakery->CellWidth;
 }
 ////
 ////uint8 UOWB_WorldGenerator::MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType) {
