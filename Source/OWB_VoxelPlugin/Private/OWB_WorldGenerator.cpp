@@ -84,88 +84,74 @@ TVoxelRange<FVoxelFloatDensity> FOWB_WorldGenerator::GetDensityRange(const FVoxe
 	TVoxelRange<FVoxelFloatDensity> Out = { 10.0, 10.0 };
 
 	if (
-		ABounds.Min.X > OpenWorldBakery->MapWidth || ABounds.Max.X < 0
-		|| ABounds.Min.Y > OpenWorldBakery->MapHeight || ABounds.Max.Y < 0
-		|| ABounds.Min.Z > 2*OpenWorldBakery->ChunksLayout.MaxZVoxelOnMap)
+		ABounds.Min.X >= OpenWorldBakery->MapWidth || ABounds.Max.X < 0
+		|| ABounds.Min.Y >= OpenWorldBakery->MapHeight || ABounds.Max.Y < 0
+		|| ABounds.Min.Z > OpenWorldBakery->ChunksLayout.MaxZVoxelOnMap
+		|| ABounds.Max.Z < MyOceanDeep)
 	{
-		//UE_LOG(LogTemp, Log, TEXT("EMPTY 1"));
 		return Out;
 	}
 
-	if (ABounds.Max.Z < MyOceanDeep) {
-		//UE_LOG(LogTemp, Log, TEXT("EMPTY 2"));
-		return Out;
-	}
-
-	FIntBox ChunkBounds = ABounds;
-	ChunkBounds.Min.X /= OpenWorldBakery->ChunksLayout.ChunkWidth;
-	ChunkBounds.Max.X /= OpenWorldBakery->ChunksLayout.ChunkWidth;
-	ChunkBounds.Min.Y /= OpenWorldBakery->ChunksLayout.ChunkHeight;
-	ChunkBounds.Max.Y /= OpenWorldBakery->ChunksLayout.ChunkHeight;
-
-	ChunkBounds.Min.X = FMath::Clamp(ChunkBounds.Min.X, 0, OpenWorldBakery->ChunksLayout.XChunks - 1);
-	ChunkBounds.Max.X = FMath::Clamp(ChunkBounds.Max.X, 0, OpenWorldBakery->ChunksLayout.XChunks - 1);
-	ChunkBounds.Min.Y = FMath::Clamp(ChunkBounds.Min.Y, 0, OpenWorldBakery->ChunksLayout.YChunks - 1);
-	ChunkBounds.Max.Y = FMath::Clamp(ChunkBounds.Max.Y, 0, OpenWorldBakery->ChunksLayout.YChunks - 1);
-	//bool SURFACEHERE1 = false;
-
-	//for (int x = ChunkBounds.Min.X; x <= ChunkBounds.Max.X; x++) {
-	//	for (int y = ChunkBounds.Min.Y; y <= ChunkBounds.Max.Y; y++) {
-	//		const FOWBMeshBlocks_set& ChunkData = OpenWorldBakery->Chunks[x + y * OpenWorldBakery->ChunksLayout.XChunks];
-	//		const FOWBMeshChunk* MeshChunk = ChunkData.ChunkContents.Find(Layer);
-	//		if (MeshChunk != NULL && MeshChunk->BlocksType == Layer
-	//				&&
-	//				!(MeshChunk->MinPoint.X >= ABounds.Max.X
-	//					|| MeshChunk->MaxPoint.X < ABounds.Min.X
-	//					|| MeshChunk->MinPoint.Y >= ABounds.Max.Y
-	//					|| MeshChunk->MaxPoint.Y < ABounds.Min.Y)) {
-
-	//			float MinVal = OWBZToVoxelZ(ChunkBounds.Min.Z - MeshChunk->MaxPoint.Z);
-	//			float MaxVal = OWBZToVoxelZ(ChunkBounds.Max.Z - MeshChunk->MinPoint.Z);
-
-	//			// Ok, this one incide Bounds
-	//			if (Out.Min > MinVal) {
-	//				Out.Min = MinVal;
-	//			}
-	//			if (Out.Max < MaxVal) {
-	//				Out.Max = MaxVal;
-	//			}
-	//			if (Out.Min < 0.0 && Out.Max > 0.0) {
-	//				SURFACEHERE1 = true;
-	//				goto SURFACEHERE;
-	//			}
-	//		}
-	//	}
-	//}
-	bool SURFACEHERE2 = false;
-	Out = { -10.0, 10.0 };
-	float HeightInVoxels;
 	FIntVector2 Min(
-		FMath::Clamp(ABounds.Min.X, 0, OpenWorldBakery->MapWidth),
-		FMath::Clamp(ABounds.Min.Y, 0, OpenWorldBakery->MapWidth)
+		FMath::Clamp(ABounds.Min.X - 1, 0, OpenWorldBakery->MapWidth - 1),
+		FMath::Clamp(ABounds.Min.Y - 1, 0, OpenWorldBakery->MapWidth - 1)
 	);
 	FIntVector2 Max(
-		FMath::Clamp(ABounds.Max.X, 0, OpenWorldBakery->MapWidth),
-		FMath::Clamp(ABounds.Max.Y, 0, OpenWorldBakery->MapWidth)
+		FMath::Clamp(ABounds.Max.X + 1, 0, OpenWorldBakery->MapWidth - 1),
+		FMath::Clamp(ABounds.Max.Y + 1, 0, OpenWorldBakery->MapWidth - 1)
 	);
 
+	FIntVector2 MinChunk = {
+		Min.X / OpenWorldBakery->ChunksLayout.ChunkWidth,
+		Min.Y / OpenWorldBakery->ChunksLayout.ChunkHeight };
+	FIntVector2 MaxChunk = {
+		Max.X / OpenWorldBakery->ChunksLayout.ChunkWidth,
+		Max.Y / OpenWorldBakery->ChunksLayout.ChunkHeight };
 
-	for (int x = Min.X; x < Max.X; x++) {
-		for (int y = Min.Y; y < Max.Y; y++) {
-			const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[x + y * OpenWorldBakery->MapWidth];
-
-			HeightInVoxels = OWBHeightToVoxelHeight(CookedGround.HeightByType(Layer));
-			if (HeightInVoxels >= ABounds.Min.Z && HeightInVoxels < Bounds.Max.Z) {
-				return Out;
+	Out = { -10.0, 10.0 };
+	float HighestPoint = -100000.0;
+	for (int x = MinChunk.X; x <= MaxChunk.X; x++) {
+		for (int y = MinChunk.Y; y <= MaxChunk.Y; y++) {
+			const FOWBMeshBlocks_set& ChunkData = OpenWorldBakery->Chunks[x + y * OpenWorldBakery->ChunksLayout.XChunks];
+			const FOWBMeshChunk* MeshChunk = ChunkData.ChunkContents.Find(Layer);
+			if (MeshChunk != NULL && MeshChunk->BlocksType == Layer) {
+				if ((ABounds.Min.Z >= MeshChunk->MinPoint.Z && ABounds.Min.Z < MeshChunk->MaxPoint.Z)
+						|| (ABounds.Max.Z >= MeshChunk->MinPoint.Z && ABounds.Max.Z < MeshChunk->MaxPoint.Z)
+						|| (ABounds.Min.Z < MeshChunk->MinPoint.Z && ABounds.Max.Z >= MeshChunk->MaxPoint.Z))
+				{
+					return Out;
+				}
+				if (HighestPoint < MeshChunk->MaxPoint.Z) {
+					HighestPoint = MeshChunk->MaxPoint.Z;
+				}
 			}
 		}
 	}
-	if (HeightInVoxels < ABounds.Min.Z) {
+	if (HighestPoint < ABounds.Min.Z) {
 		Out = { -10.0, -10.0 };
 	} else {
 		Out = { 10.0, 10.0 };
 	}
 	return Out;
+
+	//float HeightInVoxels;
+
+	//for (int x = Min.X; x < Max.X; x++) {
+	//	for (int y = Min.Y; y < Max.Y; y++) {
+	//		const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[x + y * OpenWorldBakery->MapWidth];
+
+	//		HeightInVoxels = OWBHeightToVoxelHeight(CookedGround.HeightByType(Layer));
+	//		if (HeightInVoxels >= ABounds.Min.Z && HeightInVoxels < Bounds.Max.Z) {
+	//			return Out;
+	//		}
+	//	}
+	//}
+	//if (HeightInVoxels < ABounds.Min.Z) {
+	//	Out = { -10.0, -10.0 };
+	//} else {
+	//	Out = { 10.0, 10.0 };
+	//}
+	//return Out;
 ////	if (Out.Min > 0.0 || Out.Max < 0.0) {
 //		FVector VMin = Bounds.Min;
 //		FVector Vax = Bounds.Max;
