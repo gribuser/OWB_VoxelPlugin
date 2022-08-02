@@ -1,4 +1,17 @@
 #include "OWB_WorldGenerator.h"
+#include "VoxelGenerators/VoxelGeneratorInitializer.h"
+
+void FOWB_WorldGenerator::Initialize(FVoxelRuntime* Runtime) {
+	TVoxelGeneratorInitializer<FOWB_WorldGenerator> Initializer(this);
+
+	Initializer.AddChannel<FVoxelDensityType>(FVoxelChannelNames::Density)
+		.Getter<FVoxelFloatDensity, &FOWB_WorldGenerator::GetDensity>()
+		.RangeGetter<FVoxelFloatDensity, &FOWB_WorldGenerator::GetDensityRange>();
+	Initializer.AddChannel<FVoxelColorType>(FVoxelChannelNames::Color)
+		.Getter<FColor, &FOWB_WorldGenerator::GetMaterialColor>();
+	//Initializer.AddChannel<FVoxelMaterialIdType>(FVoxelChannelNames::MaterialId)
+	//	.Getter<FVoxelMaterialId8, &FOWB_WorldGenerator::GetMaterialColor>();
+}
 
 FOWB_WorldGenerator::FOWB_WorldGenerator(UOpenWorldBakery* AOpenWorldBakery):
 	OpenWorldBakery(AOpenWorldBakery)

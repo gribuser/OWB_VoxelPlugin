@@ -1,6 +1,6 @@
 #pragma once
 #include "CoreMinimal.h"
-#include "VoxelGenerators/Hack_PrimitiveVoxelGenerator.h"
+#include "VoxelGenerators/VoxelGeneratorStruct.h"
 #include "OpenWorldBakery.h"
 #include "OWB_WorldGenerator.generated.h"
 
@@ -11,9 +11,10 @@ struct FIntBox {
 };
 
 USTRUCT(Blueprintable)
-struct OWB_VOXELPLUGIN_API FOWB_WorldGenerator : public FPrimitiveVoxelGenerator {
+struct OWB_VOXELPLUGIN_API FOWB_WorldGenerator : public FVoxelGeneratorStruct {
 	GENERATED_BODY()
 public:
+	virtual void Initialize(FVoxelRuntime* Runtime) override;
 	FOWB_WorldGenerator(UOpenWorldBakery* AOpenWorldBakery);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")
 		UOpenWorldBakery* OpenWorldBakery = NULL;
@@ -63,10 +64,14 @@ public:
 		//uint8 MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType);
 
 
-	virtual FVoxelFloatDensity GetDensity(FVector3d Position) const;
+	FVoxelFloatDensity GetDensity(FVector3d Position) const;
 	// FVoxelMaterial GetMaterialImpl(v_flt X, v_flt Y, v_flt Z, int32 LOD, const FVoxelItemStack& Items) const;
 
-	virtual TVoxelRange<FVoxelFloatDensity> GetDensityRange(const FVoxelBox& Bounds) const override;
+	TVoxelRange<FVoxelFloatDensity> GetDensityRange(const FVoxelBox& Bounds) const;
+
+	FColor GetMaterialColor(FVector3d Position) const {
+		return { 255,0,255,0 };
+	}
 
 
 	int VoxelXToOWBX(const float X) const;
