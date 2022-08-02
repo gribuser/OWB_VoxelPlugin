@@ -39,8 +39,9 @@ float FOWB_WorldGenerator::OWBZToVoxelZ(const double Z) const {
 
 FVoxelFloatDensity FOWB_WorldGenerator::GetDensity(FVector3d Position) const
 {
-	if (!IsValid(OpenWorldBakery) || OpenWorldBakery->Chunks.Num() == 0)
+	if (!IsValid(OpenWorldBakery) || OpenWorldBakery->Chunks.Num() == 0) {
 		return 10.0;
+	}
 
 	int iX = VoxelXToOWBX(Position.X);
 	int iY = VoxelYToOWBY(Position.Y);
@@ -183,6 +184,29 @@ TVoxelRange<FVoxelFloatDensity> FOWB_WorldGenerator::GetDensityRange(const FVoxe
 float FOWB_WorldGenerator::OWBHeightToVoxelHeight(double GroundElevation) const {
 	return GroundElevation / OpenWorldBakery->CellWidth;
 }
+
+FColor FOWB_WorldGenerator::GetMaterialColor(FVector3d Position) const {
+	if (!IsValid(OpenWorldBakery) || OpenWorldBakery->Chunks.Num() == 0) {
+		return { 0,0,0 };
+	}
+
+	int iX = VoxelXToOWBX(Position.X);
+	int iY = VoxelYToOWBY(Position.Y);
+	double iZ = VoxelZToOWBZ(Position.Z);
+
+	if (iX < 1 || iX >= OpenWorldBakery->MapWidth || iY < 1 || iY >= OpenWorldBakery->MapHeight) {
+		return { 0,0,0 };
+	}
+
+	if (Position.Z <= MyOceanDeep) {
+		return { 0,0,0 };
+	}
+
+	const FOWBSquareMeter& CookedGround = OpenWorldBakery->BakedHeightMap[iX + iY * OpenWorldBakery->MapWidth];
+
+	return OpenWorldBakery->TerrainVoxelColor(CookedGround).ToFColor(false);
+}
+
 ////
 ////uint8 UOWB_WorldGenerator::MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType) {
 ////	uint8 Out = 0;

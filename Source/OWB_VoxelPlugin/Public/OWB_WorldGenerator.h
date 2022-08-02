@@ -69,9 +69,7 @@ public:
 
 	TVoxelRange<FVoxelFloatDensity> GetDensityRange(const FVoxelBox& Bounds) const;
 
-	FColor GetMaterialColor(FVector3d Position) const {
-		return { 255,0,255,0 };
-	}
+	FColor GetMaterialColor(FVector3d Position) const;
 
 
 	int VoxelXToOWBX(const float X) const;
