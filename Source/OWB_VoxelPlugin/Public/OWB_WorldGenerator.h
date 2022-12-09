@@ -28,23 +28,23 @@
 		{EOWBGroundSurfaceTypes::LakeBed, 8},
 		{EOWBGroundSurfaceTypes::LakeShallow, 9},
 		{EOWBGroundSurfaceTypes::SeaShoreSand, 10},
-		{EOWBGroundSurfaceTypes::SeaShoreRock, 11},
-		{EOWBGroundSurfaceTypes::SeaBed, 12},
-		{EOWBGroundSurfaceTypes::SeaShallowSand, 13},
-		{EOWBGroundSurfaceTypes::SeaShallowRock, 14},
-		{EOWBGroundSurfaceTypes::RiverShoreSand, 15},
-		{EOWBGroundSurfaceTypes::RiverShoreRock, 16},
-		{EOWBGroundSurfaceTypes::RiverShoreWaterfall, 17},
-		{EOWBGroundSurfaceTypes::RiverShallowSand, 18},
-		{EOWBGroundSurfaceTypes::RiverShallowRock, 19},
-		{EOWBGroundSurfaceTypes::RiverShallowWaterfall, 20},
-		{EOWBGroundSurfaceTypes::RiverBed, 21},
-		{EOWBGroundSurfaceTypes::SpringEasy, 22},
-		{EOWBGroundSurfaceTypes::SpringHard, 23},
-		{EOWBGroundSurfaceTypes::LandSlideAged, 24},
-		{EOWBGroundSurfaceTypes::LandSlideSmooth, 25},
-		{EOWBGroundSurfaceTypes::LandSlideRocky, 26},
-		{EOWBGroundSurfaceTypes::ErrorTerrain, 27}
+		{EOWBGroundSurfaceTypes::SeaShoreRock, 0},
+		{EOWBGroundSurfaceTypes::SeaBed, 1},
+		{EOWBGroundSurfaceTypes::SeaShallowSand, 2},
+		{EOWBGroundSurfaceTypes::SeaShallowRock, 3},
+		{EOWBGroundSurfaceTypes::RiverShoreSand, 4},
+		{EOWBGroundSurfaceTypes::RiverShoreRock, 5},
+		{EOWBGroundSurfaceTypes::RiverShoreWaterfall, 6},
+		{EOWBGroundSurfaceTypes::RiverShallowSand, 7},
+		{EOWBGroundSurfaceTypes::RiverShallowRock, 8},
+		{EOWBGroundSurfaceTypes::RiverShallowWaterfall, 9},
+		{EOWBGroundSurfaceTypes::RiverBed, 10},
+		{EOWBGroundSurfaceTypes::SpringEasy, 0},
+		{EOWBGroundSurfaceTypes::SpringHard, 1},
+		{EOWBGroundSurfaceTypes::LandSlideAged, 2},
+		{EOWBGroundSurfaceTypes::LandSlideSmooth, 3},
+		{EOWBGroundSurfaceTypes::LandSlideRocky, 4},
+		{EOWBGroundSurfaceTypes::ErrorTerrain, 5}
 	};
 
 	//~ Begin UVoxelWorldGenerator Interface
@@ -54,7 +54,7 @@
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Open World Bakery")
 	EOWBMeshBlockTypes Layer = EOWBMeshBlockTypes::Ground;
 
-	uint8 MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType);
+	uint8 MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType) const;
  };
 
 

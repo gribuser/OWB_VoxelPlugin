@@ -76,7 +76,7 @@ v_flt FOWB_VoxelWorldGeneratorInstance::OWBHeightToVoxelHeight(double GroundElev
 	return GroundElevation / OpenWorldBakery->CellWidth * 2;
 }
 
-uint8 UOWB_WorldGenerator::MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType) {
+uint8 UOWB_WorldGenerator::MaterialID_FromSUrfaceType(EOWBGroundSurfaceTypes SurfaceType) const {
 	uint8 Out = 0;
 	if (SurfaceTypeMapping.Contains(SurfaceType)) {
 		Out = SurfaceTypeMapping[SurfaceType];
@@ -104,13 +104,13 @@ FVoxelMaterial FOWB_VoxelWorldGeneratorInstance::GetMaterialImpl(v_flt X, v_flt 
 		}
 		else if (CookedGround.SurfaceType == CookedGround.SurfaceTypeAdditional) {
 			NewMaterial.SetMaterialConfig(EVoxelMaterialConfig::MultiIndex);
-			NewMaterial.AddMultiIndex((int)CookedGround.SurfaceType, 1.0);
+			NewMaterial.AddMultiIndex(Generator.MaterialID_FromSUrfaceType(CookedGround.SurfaceType), 1.0);
 			return NewMaterial.Build();
 		}
 		else {
 			NewMaterial.SetMaterialConfig(EVoxelMaterialConfig::MultiIndex);
-			NewMaterial.AddMultiIndex((int)CookedGround.SurfaceType, 0.7);
-			NewMaterial.AddMultiIndex((int)CookedGround.SurfaceTypeAdditional, 0.3);
+			NewMaterial.AddMultiIndex(Generator.MaterialID_FromSUrfaceType(CookedGround.SurfaceType), 0.7);
+			NewMaterial.AddMultiIndex(Generator.MaterialID_FromSUrfaceType(CookedGround.SurfaceTypeAdditional), 0.3);
 			return NewMaterial.Build();
 		}
 	}
