@@ -26,9 +26,8 @@ public class OWB_VoxelPlugin : ModuleRules
 			new string[]
 			{
 				"Core",
-        "VoxelCore",
-        "Voxel",
-        "OpenWorldBakery",
+                "VoxelCore",
+                "OpenWorldBakery",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
