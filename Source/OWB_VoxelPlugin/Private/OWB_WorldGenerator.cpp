@@ -1,5 +1,57 @@
-//#include "OWB_WorldGenerator.h"
-//#include "VoxelGenerators/VoxelGeneratorInitializer.h"
+#pragma once
+#include "OWB_WorldGenerator.h"
+
+
+FVoxelFloatBuffer UVoxelOWBFunctionLibrary::SampleOWBHeight(
+		const FVoxelOWBHeightmap& OWBHeightmap,
+		const FVoxelIntPointBuffer& Position,
+		bool bWaterChannel) const
+{
+	FVoxelFloatBufferStorage ReturnValue;
+	ReturnValue.Allocate(Position.Num());
+	const UOpenWorldBakery* OWB = OWBHeightmap.OpenWorldBakery;
+	ensure(OWB);
+	if (OWB == NULL) {
+		// No OWB set up here, quit!
+		ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+			float* iO = ReturnValue.GetData(Iterator);
+			for (int i = 0; i < Iterator.Num(); ++i) {
+				iO[i] = 0.0;
+			}
+		});
+		return FVoxelFloatBuffer::Make(ReturnValue);
+	}
+	const int Width = OWB->MapWidth;
+	const int Height = OWB->MapHeight;
+	const int HalfWidth = Width / 2;
+	const int HalfHeight = Height / 2;
+	const float CellWidth = OWB->CellWidth;
+
+	ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+		const int* iX = Position.X.GetData(Iterator);
+		const int* iY = Position.Y.GetData(Iterator);
+		float* iO = ReturnValue.GetData(Iterator);
+		for (int i = 0; i < Iterator.Num(); ++i) {
+			const int X = iX[i] + HalfWidth;
+			const int Y = iY[i] + HalfHeight;
+
+			if (X < 0 || X >= Width || Y < 0 || Y >= Height) {
+				iO[i] = NoMapHeight;
+				continue;
+			}
+
+			const FOWBSquareMeter& CookedGround = OWB->BakedHeightMap[X + Y * Width];
+
+			const double Elevation = CookedGround.HeightByType(
+				bWaterChannel ? EOWBMeshBlockTypes::FreshWater : EOWBMeshBlockTypes::Ground);
+
+			const float HeightInVoxels = Elevation / CellWidth;
+			iO[i] = HeightInVoxels;
+		}
+	});
+	return FVoxelFloatBuffer::Make(ReturnValue);
+}
+
 //
 //void FOWB_WorldGenerator::Initialize(FVoxelRuntime* Runtime) {
 //	TVoxelGeneratorInitializer<FOWB_WorldGenerator> Initializer(this);

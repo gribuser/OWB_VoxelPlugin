@@ -1,14 +1,64 @@
 #pragma once
 #include "CoreMinimal.h"
-//#include "VoxelGenerators/VoxelGeneratorStruct.h"
+#include "VoxelMinimal.h"
+#include "VoxelNode.h"
 #include "OpenWorldBakery.h"
-//#include "OWB_WorldGenerator.generated.h"
+#include "VoxelPinValueInterface.h"
+#include "VoxelObjectPinType.h"
+#include "VoxelFunctionLibrary.h"
+#include "Buffer/VoxelIntegerBuffers.h"
+#include "OWB_WorldGenerator.generated.h"
 
 
-struct FIntBox {
-	FIntVector Min;
-	FIntVector Max;
+constexpr float NoMapHeight = -100000;
+
+USTRUCT(BlueprintType)
+struct OWB_VOXELPLUGIN_API FVoxelOWBHeightmap: public FVoxelPinValueInterface
+{
+	GENERATED_BODY()
+	GENERATED_VIRTUAL_STRUCT_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true))
+	const UOpenWorldBakery* OpenWorldBakery;
+
+	FVoxelOWBHeightmap():OpenWorldBakery(NULL){}
+	FVoxelOWBHeightmap(const UOpenWorldBakery* AOpenWorldBakery)
+		:OpenWorldBakery(AOpenWorldBakery) {}
+
+	friend uint32 GetTypeHash(const FVoxelOWBHeightmap O) {
+		return PointerHash(O.OpenWorldBakery);
+	}
 };
+
+USTRUCT(DisplayName = "OWBHeightmap")
+struct OWB_VOXELPLUGIN_API FVoxelOWBHeightmapRef
+{
+	GENERATED_BODY()
+
+	//TWeakObjectPtr<UCurveFloat> Object;
+	FVoxelOWBHeightmap Heightmap;
+};
+
+DECLARE_VOXEL_OBJECT_PIN_TYPE(FVoxelOWBHeightmapRef);
+
+UCLASS()
+class OWB_VOXELPLUGIN_API UVoxelOWBFunctionLibrary: public UVoxelFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
+	FVoxelFloatBuffer SampleOWBHeight(
+		const FVoxelOWBHeightmap& OWBHeightmap,
+		const FVoxelIntPointBuffer& Position,
+		bool bWaterChannel = false) const;
+};
+
+
+//struct FIntBox {
+//	FIntVector Min;
+//	FIntVector Max;
+//};
 //
 //USTRUCT(Blueprintable)
 //struct OWB_VOXELPLUGIN_API FOWB_WorldGenerator : public FVoxelGeneratorStruct {
