@@ -29,6 +29,7 @@ public class OWB_VoxelPlugin : ModuleRules
                 "VoxelCore",
                 "OpenWorldBakery",
                 "VoxelGraphCore",
+                "VoxelLandmass",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

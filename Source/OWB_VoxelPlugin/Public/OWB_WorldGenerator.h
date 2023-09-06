@@ -7,6 +7,7 @@
 #include "VoxelObjectPinType.h"
 #include "VoxelFunctionLibrary.h"
 #include "Buffer/VoxelIntegerBuffers.h"
+#include "VoxelHeightmapFunctionLibrary.h"
 #include "OWB_WorldGenerator.generated.h"
 
 
@@ -52,6 +53,13 @@ public:
 		const FVoxelOWBHeightmap& OWBHeightmap,
 		const FVoxelIntPointBuffer& Position,
 		bool bWaterChannel = false) const;
+	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
+	FVoxelHeightmapRef OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap);
+
+private:
+	UPROPERTY()
+	UVoxelHeightmap* CachedUVHM = NULL;
+	TSharedPtr<const FVoxelHeightmap> CachedVHM = NULL;
 };
 
 
