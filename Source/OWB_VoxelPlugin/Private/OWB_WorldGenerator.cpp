@@ -10,13 +10,12 @@ FVoxelFloatBuffer UVoxelOWBFunctionLibrary::SampleOWBHeight(
 	FVoxelFloatBufferStorage ReturnValue;
 	ReturnValue.Allocate(Position.Num());
 	const UOpenWorldBakery* OWB = OWBHeightmap.OpenWorldBakery;
-	ensure(OWB);
 	if (OWB == NULL) {
 		// No OWB set up here, quit!
 		ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 			float* iO = ReturnValue.GetData(Iterator);
 			for (int i = 0; i < Iterator.Num(); ++i) {
-				iO[i] = 0.0;
+				iO[i] = NoMapHeight;
 			}
 		});
 		return FVoxelFloatBuffer::Make(ReturnValue);
