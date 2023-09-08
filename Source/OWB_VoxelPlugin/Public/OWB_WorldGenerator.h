@@ -11,7 +11,7 @@
 #include "OWB_WorldGenerator.generated.h"
 
 
-constexpr float NoMapHeight = -100000;
+constexpr float NoMapHeight = -100;
 
 USTRUCT(BlueprintType)
 struct OWB_VOXELPLUGIN_API FVoxelOWBHeightmap: public FVoxelPinValueInterface
@@ -53,6 +53,13 @@ public:
 		const FVoxelOWBHeightmap& OWBHeightmap,
 		const FVoxelIntPointBuffer& Position,
 		bool bWaterChannel = false) const;
+
+	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
+	FVoxelLinearColorBuffer SampleOWBColor(
+		const FVoxelOWBHeightmap& OWBHeightmap,
+		const FVoxelIntPointBuffer& Position,
+		bool bWaterChannel = false) const;
+
 	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
 	FVoxelHeightmapRef OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap);
 

@@ -51,6 +51,62 @@ FVoxelFloatBuffer UVoxelOWBFunctionLibrary::SampleOWBHeight(
 	return FVoxelFloatBuffer::Make(ReturnValue);
 }
 
+FVoxelLinearColorBuffer UVoxelOWBFunctionLibrary::SampleOWBColor(
+		const FVoxelOWBHeightmap& OWBHeightmap,
+		const FVoxelIntPointBuffer& Position,
+		bool bWaterChannel) const
+{
+	FVoxelFloatBufferStorage ReturnR; ReturnR.Allocate(Position.Num());
+	FVoxelFloatBufferStorage ReturnG; ReturnG.Allocate(Position.Num());
+	FVoxelFloatBufferStorage ReturnB; ReturnB.Allocate(Position.Num());
+	FVoxelFloatBufferStorage ReturnA; ReturnA.Allocate(Position.Num());
+
+	const UOpenWorldBakery* OWB = OWBHeightmap.OpenWorldBakery;
+	if (OWB == NULL) {
+		// No OWB set up here, quit!
+		ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+			float* OutR = ReturnR.GetData(Iterator);
+			float* OutG = ReturnG.GetData(Iterator);
+			float* OutB = ReturnB.GetData(Iterator);
+			for (int i = 0; i < Iterator.Num(); ++i) {
+				OutR[i] = OutG[i] = OutB[i] = 1.0;
+			}
+		});
+		return FVoxelLinearColorBuffer::Make(ReturnR, ReturnG, ReturnB, ReturnA);
+	}
+	const int Width = OWB->MapWidth;
+	const int Height = OWB->MapHeight;
+	const int HalfWidth = Width / 2;
+	const int HalfHeight = Height / 2;
+	const float CellWidth = OWB->CellWidth;
+
+	ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+		const int* iX = Position.X.GetData(Iterator);
+		const int* iY = Position.Y.GetData(Iterator);
+		float* OutR = ReturnR.GetData(Iterator);
+		float* OutG = ReturnG.GetData(Iterator);
+		float* OutB = ReturnB.GetData(Iterator);
+		for (int i = 0; i < Iterator.Num(); ++i) {
+			const int X = iX[i] + HalfWidth;
+			const int Y = iY[i] + HalfHeight;
+
+			if (X < 0 || X >= Width || Y < 0 || Y >= Height) {
+				OutR[i] = OutG[i] = OutB[i] = 1.0;
+				continue;
+			}
+
+			const FOWBSquareMeter& CookedGround = OWB->BakedHeightMap[X + Y * Width];
+
+			const FLinearColor Color = OWB->TerrainVoxelColor(CookedGround);
+			OutR[i] = Color.R;
+			OutG[i] = Color.G;
+			OutB[i] = Color.B;
+		}
+	});
+	return FVoxelLinearColorBuffer::Make(ReturnR, ReturnG, ReturnB, ReturnA);
+}
+
+
 FVoxelHeightmapRef UVoxelOWBFunctionLibrary::OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap) {
 	ensure(OWBHeightmap.OpenWorldBakery && OWBHeightmap.OpenWorldBakery->bCookedMapReady);
 
