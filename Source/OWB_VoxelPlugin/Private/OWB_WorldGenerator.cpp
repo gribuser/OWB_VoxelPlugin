@@ -1,5 +1,7 @@
 #pragma once
 #include "OWB_WorldGenerator.h"
+#include "Buffer/VoxelFloatBuffers.h"
+#include "Heightmap/VoxelHeightmap.h"
 
 constexpr float ShiftTolerance = 0.05;
 void UVoxelOWBFunctionLibrary::SampleOWBHeights(
@@ -13,7 +15,7 @@ void UVoxelOWBFunctionLibrary::SampleOWBHeights(
 	const UOpenWorldBakery* OWB = OWBHeightmap.OpenWorldBakery;
 	if (OWB == NULL) {
 		// No OWB set up here, quit!
-		ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+		ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 			float* SH = OutSoilHeight.GetData(Iterator);
 			float* WH = OutWaterHeight.GetData(Iterator);
 			for (int i = 0; i < Iterator.Num(); ++i) {
@@ -30,7 +32,7 @@ void UVoxelOWBFunctionLibrary::SampleOWBHeights(
 	const int HalfHeight = Height / 2;
 	const float CellWidth = OWB->CellWidth;
 
-	ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+	ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 		const float* fX = Position.X.GetData(Iterator);
 		const float* fY = Position.Y.GetData(Iterator);
 		float* SH = OutSoilHeight.GetData(Iterator);
@@ -117,7 +119,7 @@ FVoxelLinearColorBuffer UVoxelOWBFunctionLibrary::SampleOWBColor(
 	const UOpenWorldBakery* OWB = OWBHeightmap.OpenWorldBakery;
 	if (OWB == NULL) {
 		// No OWB set up here, quit!
-		ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+		ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 			float* OutR = ReturnR.GetData(Iterator);
 			float* OutG = ReturnG.GetData(Iterator);
 			float* OutB = ReturnB.GetData(Iterator);
@@ -133,7 +135,7 @@ FVoxelLinearColorBuffer UVoxelOWBFunctionLibrary::SampleOWBColor(
 	const int HalfHeight = Height / 2;
 	const float CellWidth = OWB->CellWidth;
 
-	ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+	ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 		const int* iX = Position.X.GetData(Iterator);
 		const int* iY = Position.Y.GetData(Iterator);
 		float* OutR = ReturnR.GetData(Iterator);

@@ -7,7 +7,7 @@
 #include "VoxelObjectPinType.h"
 #include "VoxelFunctionLibrary.h"
 #include "Buffer/VoxelIntegerBuffers.h"
-#include "VoxelHeightmapFunctionLibrary.h"
+#include "Heightmap/VoxelHeightmap.h"
 #include "OWB_WorldGenerator.generated.h"
 
 
