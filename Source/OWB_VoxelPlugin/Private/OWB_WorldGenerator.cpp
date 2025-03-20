@@ -1,5 +1,7 @@
 #pragma once
 #include "OWB_WorldGenerator.h"
+#include "Buffer/VoxelIntegerBuffers.h"
+#include "Buffer/VoxelFloatBuffers.h"
 
 constexpr float ShiftTolerance = 0.05;
 void UVoxelOWBFunctionLibrary::SampleOWBHeights(
@@ -13,7 +15,7 @@ void UVoxelOWBFunctionLibrary::SampleOWBHeights(
 	const UOpenWorldBakery* OWB = OWBHeightmap.OpenWorldBakery;
 	if (OWB == NULL) {
 		// No OWB set up here, quit!
-		ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+		ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 			float* SH = OutSoilHeight.GetData(Iterator);
 			float* WH = OutWaterHeight.GetData(Iterator);
 			for (int i = 0; i < Iterator.Num(); ++i) {
@@ -30,7 +32,7 @@ void UVoxelOWBFunctionLibrary::SampleOWBHeights(
 	const int HalfHeight = Height / 2;
 	const float CellWidth = OWB->CellWidth;
 
-	ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+	ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 		const float* fX = Position.X.GetData(Iterator);
 		const float* fY = Position.Y.GetData(Iterator);
 		float* SH = OutSoilHeight.GetData(Iterator);
@@ -117,7 +119,7 @@ FVoxelLinearColorBuffer UVoxelOWBFunctionLibrary::SampleOWBColor(
 	const UOpenWorldBakery* OWB = OWBHeightmap.OpenWorldBakery;
 	if (OWB == NULL) {
 		// No OWB set up here, quit!
-		ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+		ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 			float* OutR = ReturnR.GetData(Iterator);
 			float* OutG = ReturnG.GetData(Iterator);
 			float* OutB = ReturnB.GetData(Iterator);
@@ -133,7 +135,7 @@ FVoxelLinearColorBuffer UVoxelOWBFunctionLibrary::SampleOWBColor(
 	const int HalfHeight = Height / 2;
 	const float CellWidth = OWB->CellWidth;
 
-	ForeachVoxelBufferChunk(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
+	ForeachVoxelBufferChunk_Parallel(Position.Num(), [&](const FVoxelBufferIterator& Iterator) {
 		const int* iX = Position.X.GetData(Iterator);
 		const int* iY = Position.Y.GetData(Iterator);
 		float* OutR = ReturnR.GetData(Iterator);
@@ -160,36 +162,36 @@ FVoxelLinearColorBuffer UVoxelOWBFunctionLibrary::SampleOWBColor(
 }
 
 
-FVoxelHeightmapRef UVoxelOWBFunctionLibrary::OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap) {
-	ensure(OWBHeightmap.OpenWorldBakery && OWBHeightmap.OpenWorldBakery->bCookedMapReady);
-
-	if (OWBHeightmap.OpenWorldBakery == NULL || !OWBHeightmap.OpenWorldBakery->bCookedMapReady) {
-		return {};
-	}
-
-	if (CachedUVHM == NULL) {
-		CachedUVHM = NewObject<UVoxelHeightmap>(this);
-		FVoxelHeightmap* ACachedVHM = new FVoxelHeightmap();
-		TVoxelArray<uint16> Heights16;
-		Heights16.SetNumUninitialized(OWBHeightmap.OpenWorldBakery->MapWidth * OWBHeightmap.OpenWorldBakery->MapHeight);
-		const double MaxH = OWBHeightmap.OpenWorldBakery->OceanDeep + 1.0;
-		for (int y = 0; y < OWBHeightmap.OpenWorldBakery->MapHeight; ++y) {
-			for (int x = 0; x < OWBHeightmap.OpenWorldBakery->MapWidth; ++x) {
-				const int N = y * OWBHeightmap.OpenWorldBakery->MapWidth + x;
-				const double H = OWBHeightmap.OpenWorldBakery->BakedHeightMap[N].HeightByType(EOWBMeshBlockTypes::Ground);
-				Heights16[N]
-					= (H + OWBHeightmap.OpenWorldBakery->OceanDeep) / MaxH * MAX_uint16;
-			}
-		}
-		ACachedVHM->Initialize(OWBHeightmap.OpenWorldBakery->MapWidth,
-													 OWBHeightmap.OpenWorldBakery->MapHeight,
-													 MoveTemp(Heights16));
-		CachedVHM = TSharedPtr<const FVoxelHeightmap>(ACachedVHM);
-	}
-	FVoxelHeightmapRef Out{ CachedUVHM, {}, CachedVHM };
-
-	return Out;
-}
+//FVoxelHeightmapRef UVoxelOWBFunctionLibrary::OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap) {
+//	ensure(OWBHeightmap.OpenWorldBakery && OWBHeightmap.OpenWorldBakery->bCookedMapReady);
+//
+//	if (OWBHeightmap.OpenWorldBakery == NULL || !OWBHeightmap.OpenWorldBakery->bCookedMapReady) {
+//		return {};
+//	}
+//
+//	if (CachedUVHM == NULL) {
+//		CachedUVHM = NewObject<UVoxelHeightmap>(this);
+//		FVoxelHeightmap* ACachedVHM = new FVoxelHeightmap();
+//		TVoxelArray<uint16> Heights16;
+//		Heights16.SetNumUninitialized(OWBHeightmap.OpenWorldBakery->MapWidth * OWBHeightmap.OpenWorldBakery->MapHeight);
+//		const double MaxH = OWBHeightmap.OpenWorldBakery->OceanDeep + 1.0;
+//		for (int y = 0; y < OWBHeightmap.OpenWorldBakery->MapHeight; ++y) {
+//			for (int x = 0; x < OWBHeightmap.OpenWorldBakery->MapWidth; ++x) {
+//				const int N = y * OWBHeightmap.OpenWorldBakery->MapWidth + x;
+//				const double H = OWBHeightmap.OpenWorldBakery->BakedHeightMap[N].HeightByType(EOWBMeshBlockTypes::Ground);
+//				Heights16[N]CachedVHM
+//					= (H + OWBHeightmap.OpenWorldBakery->OceanDeep) / MaxH * MAX_uint16;
+//			}
+//		}
+//		ACachedVHM->Initialize(OWBHeightmap.OpenWorldBakery->MapWidth,
+//													 OWBHeightmap.OpenWorldBakery->MapHeight,
+//													 MoveTemp(Heights16));
+//		CachedVHM = TSharedPtr<const FVoxelHeightmap>(ACachedVHM);
+//	}
+//	FVoxelHeightmapRef Out{ CachedUVHM, {}, CachedVHM };
+//
+//	return Out;
+//}
 
 //
 //void FOWB_WorldGenerator::Initialize(FVoxelRuntime* Runtime) {

@@ -1,23 +1,25 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "VoxelMinimal.h"
-#include "VoxelNode.h"
 #include "OpenWorldBakery.h"
-#include "VoxelPinValueInterface.h"
-#include "VoxelObjectPinType.h"
+//#include "VoxelNode.h"
+//#include "VoxelPinValueInterface.h"
+//#include "VoxelObjectPinType.h"
+//#include "Buffer/VoxelIntegerBuffers.h"
+//#include "VoxelHeightmapFunctionLibrary.h"
 #include "VoxelFunctionLibrary.h"
-#include "Buffer/VoxelIntegerBuffers.h"
-#include "VoxelHeightmapFunctionLibrary.h"
+#include "VoxelObjectPinType.h"
+#include "VoxelPinValueBase.h"
+#include "Heightmap/VoxelHeightmap.h"
 #include "OWB_WorldGenerator.generated.h"
 
 
 constexpr float NoMapHeight = -30000.0;
 
 USTRUCT(BlueprintType)
-struct OWB_VOXELPLUGIN_API FVoxelOWBHeightmap: public FVoxelPinValueInterface
+struct OWB_VOXELPLUGIN_API FVoxelOWBHeightmap: public FVoxelPinValueBase
 {
 	GENERATED_BODY()
-	GENERATED_VIRTUAL_STRUCT_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (ExposeOnSpawn = true))
 	const UOpenWorldBakery* OpenWorldBakery;
@@ -61,13 +63,13 @@ public:
 		const FVoxelIntPointBuffer& Position,
 		bool bWaterChannel = false) const;
 
-	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
-	FVoxelHeightmapRef OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap);
+//	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
+//	FVoxelHeightmapRef OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap);
 
 private:
 	UPROPERTY()
 	UVoxelHeightmap* CachedUVHM = NULL;
-	TSharedPtr<const FVoxelHeightmap> CachedVHM = NULL;
+	//TSharedPtr<const FVoxelHeightmap> CachedVHM = NULL;
 };
 
 
