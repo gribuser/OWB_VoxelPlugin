@@ -50,18 +50,18 @@ class OWB_VOXELPLUGIN_API UVoxelOWBFunctionLibrary: public UVoxelFunctionLibrary
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
-	void SampleOWBHeights(
-		const FVoxelOWBHeightmap& OWBHeightmap,
-		const FVoxelVector2DBuffer& Position,
-		FVoxelFloatBuffer& SoilHeight,
-		FVoxelFloatBuffer& WaterHeight) const;
+	//UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
+	//void SampleOWBHeights(
+	//	const FVoxelOWBHeightmap& OWBHeightmap,
+	//	const FVoxelVector2DBuffer& Position,
+	//	FVoxelFloatBuffer& SoilHeight,
+	//	FVoxelFloatBuffer& WaterHeight) const;
 
-	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
-	FVoxelLinearColorBuffer SampleOWBColor(
-		const FVoxelOWBHeightmap& OWBHeightmap,
-		const FVoxelIntPointBuffer& Position,
-		bool bWaterChannel = false) const;
+	//UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
+	//FVoxelLinearColorBuffer SampleOWBColor(
+	//	const FVoxelOWBHeightmap& OWBHeightmap,
+	//	const FVoxelIntPointBuffer& Position,
+	//	bool bWaterChannel = false) const;
 
 //	UFUNCTION(Category = "Heightmap|OpenWOrldBakery Heightmap")
 //	FVoxelHeightmapRef OWBLandmassHeightmap(const FVoxelOWBHeightmap& OWBHeightmap);
