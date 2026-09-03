@@ -3,7 +3,7 @@
 #include "Buffer/VoxelIntegerBuffers.h"
 #include "Buffer/VoxelFloatBuffers.h"
 
-constexpr float ShiftTolerance = 0.05;
+constexpr float ShiftTolerance = 0.05f;
 //void UVoxelOWBFunctionLibrary::SampleOWBHeights(
 //		const FVoxelOWBHeightmap& OWBHeightmap,
 //		const FVoxelVector2DBuffer& Position,
